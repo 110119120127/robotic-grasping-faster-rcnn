@@ -2,6 +2,8 @@
 
 <img src="images_grasp/FasterRCNN_modified.png" width="640"/>
 
+<video src="demo_video/Grasp_FRCNN_20190817.mp4" width="640"/>
+
 ################################################################################
 
 
