@@ -2,8 +2,9 @@
 
 <img src="images_grasp/FasterRCNN_modified.png" width="640"/>
 
-<video src="demo_video/Grasp_FRCNN_20190817.mp4" type="video/mp4" width="640"/>
-
+<video width="99%" height="480" autoplay loop muted markdown="1">
+    <source src="demo_video/Grasp_FRCNN_20190817.mp4" type="video/mp4" markdown="1" >
+</video>
 
 ################################################################################
 
