@@ -2,7 +2,7 @@
 
 <img src="images_grasp/FasterRCNN_modified.png" width="640"/>
 
-<video style="width:100%" controls src="demo_video/Grasp_FRCNN_20190817.mp4" type="video/mp4"></video>
+<video style="width:100%" controls src="demo_video/Grasp_FRCNN_20190817.mp4" type="Grasp_FRCNN_20190817/mp4"></video>
 
 
 ################################################################################
