@@ -1,0 +1,58 @@
+
+When run: python2.7 setup.py build develop
+
+Errors:
+error: can't create or remove files in install directory
+[Errno 2] No such file or directory: '/usr/local/lib/python2.7/dist-packages/test-easy-install-23469.write-test'
+The installation directory you specified (via --install-dir, --prefix, or
+the distutils default setting) was:
+
+    /usr/local/lib/python2.7/dist-packages/
+
+This directory does not currently exist.  Please create it and try again, or
+choose a different installation directory (using the -d or --install-dir
+option).
+
+
+Sol.:
+python2.7 setup.py build develop --install-dir=/usr/lib/python2.7/dist-packages --user
+
+python3 setup.py build develop --install-dir=/usr/lib/python3.6/dist-packages --user
+
+When run: 
+python test_net.py --dataset pascal_voc --net vgg16 \
+                   --checksession $SESSION --checkepoch $EPOCH --checkpoint $CHECKPOINT \
+                   --cuda
+
+Errors:
+ImportError: cannot import name _mask
+
+Sol.:
+cd ./data
+git clone https://github.com/cocodataset/cocoapi
+cd cocoapi/PythonAPI
+make
+change folder cocoapi to coco
+
+ImportError: libcudart.so.10.0: cannot open shared object file: No such file or directory
+
+export PATH=/usr/local/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH     
+
+Errors: it happens because we already made the project run in a PC, but
+then we copy the project to another PC. So, we must rebuild because, we 
+chagne the working env (build/compile the source code in the working env). But,
+remember to remove the build dir first.
+
+from model import _C
+ImportError: /media/edward/DATA/Ubuntu18/Documents/faster-rcnn.pytorch/lib/model/_C.so: undefined symbol: _ZN3c1019UndefinedTensorImpl10_singletonE
+Remove build and rebuild
+/faster-rcnn.pytorch/lib
+
+
+
+
+
+
+
+

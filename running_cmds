@@ -1,0 +1,73 @@
+1. create a folder: data/finetuned_model/vgg16/pascal_voc
+2. download the 1st fintuned model, in the Benchmarking, table 1). PASCAL VOC 2007 (Train/Test: 07trainval/07test, scale=600, ROI Align)
+model  	#GPUs	batch size	lr   lr_decay    max_epoch   time/epoch	mem/GPU mAP
+VGG-16  1	    1	        1e-3 5  	     6  	     0.76 hr	3265MB  70.1
+
+faster_rcnn_1_6_10021.pth
+--> 
+--checksession 1
+--checkepoch 6 
+
+python demo.py --net vgg16 \
+               --checksession 1 --checkepoch 6 \
+               --cuda --load_dir ./data/finetuned_model
+
+
+python demo.py --net vgg16 \
+               --checksession 1 --checkepoch 10 \
+               --cuda --load_dir ./models
+
+# demo with inria:
+python demo.py --dataset inria --net vgg16 --image_dir images_inria --checksession 1 --checkepoch 10 --checkpoint 1227 --cuda --load_dir ./models
+               
+CUDA_VISIBLE_DEVICES=0 python trainval_net.py \
+                   --dataset pascal_voc --net vgg16 \
+                   --bs 1 --nw 0 \
+                   --lr 1e-3 --lr_decay_step 3 \
+                   --cuda   
+
+# train with inria dataset                   
+CUDA_VISIBLE_DEVICES=0 python trainval_net.py \
+                   --dataset inria --net vgg16 \
+                   --epochs 1 \
+                   --bs 1 --nw 0 \
+                   --lr 1e-3 --lr_decay_step 3 \
+                   --cuda   
+
+# train with grasp dataset, python2                   
+CUDA_VISIBLE_DEVICES=0 python trainval_net.py \
+                   --dataset grasp --net vgg16 \
+                   --epochs 1 \
+                   --bs 1 --nw 0 \
+                   --lr 1e-3 --lr_decay_step 3 \
+                   --cuda     
+# train with grasp dataset, python3                   
+CUDA_VISIBLE_DEVICES=0 python3 trainval_net.py \
+                   --dataset grasp --net vgg16 \
+                   --epochs 1 \
+                   --bs 1 --nw 0 \
+                   --lr 1e-3 --lr_decay_step 3 \
+                   --cuda  
+
+python demo.py --dataset grasp --net vgg16 --image_dir images_grasp --checksession 1 --checkepoch 5 --checkpoint 899 --cuda --load_dir ./models                  
+
+python3 demo.py --dataset grasp --net vgg16 --image_dir images_grasp --checksession 1 --checkepoch 5 --checkpoint 899 --cuda --load_dir ./models     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                               
