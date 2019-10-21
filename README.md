@@ -1,11 +1,13 @@
-# We modified the Faster RCNN by adding a FC branch for pose estimation
+# Robotic Grasping (pick-and-place) using  Faster R-CNN 
+
+## We modified the Faster R-CNN by adding a FC branch for pose (angle) estimation
 
 <img src="images_grasp/FasterRCNN_modified.png" width="640"/>
 
 <img src="demo_video/Grasp_FRCNN_20190817.gif" width="640"/>
 
-################################################################################
 
+################################################################################
 
 # A *Faster* Pytorch Implementation of Faster R-CNN
 
