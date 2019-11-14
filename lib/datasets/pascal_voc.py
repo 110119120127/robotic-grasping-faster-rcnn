@@ -51,12 +51,15 @@ class pascal_voc(imdb):
                          'cow', 'diningtable', 'dog', 'horse',
                          'motorbike', 'person', 'pottedplant',
                          'sheep', 'sofa', 'train', 'tvmonitor')
+        '''
+        {'__background__': 0, 'aeroplane': 1, 'bicycle': 2,'bird': 3, 'boat': 4, 'bottle': 5, 'bus': 6, 'car':7, 'cat': 8, 'chair': 9, 'cow': 10, 'diningtable': 11, 'dog': 12, 'horse': 13, 'motorbike': 14, 'person': 15, 'pottedplant': 16, 'sheep': 17, 'sofa': 18, 'train': 19, 'tvmonitor': 20}
+        '''
         self._class_to_ind = dict(zip(self.classes, xrange(self.num_classes)))
         self._image_ext = '.jpg'
         self._image_index = self._load_image_set_index()
         # Default to roidb handler
         # self._roidb_handler = self.selective_search_roidb
-        self._roidb_handler = self.gt_roidb
+        self._roidb_handler = self.gt_roidb 
         self._salt = str(uuid.uuid4())
         self._comp_id = 'comp4'
 
@@ -204,12 +207,12 @@ class pascal_voc(imdb):
 
     def _load_pascal_annotation(self, index):
         """
-        Load image and bounding boxes info from XML file in the PASCAL VOC
+        Load image and bounding boxes info from only a XML file in the PASCAL VOC
         format.
         """
         filename = os.path.join(self._data_path, 'Annotations', index + '.xml')
         tree = ET.parse(filename)
-        objs = tree.findall('object')
+        objs = tree.findall('object')   # num of gt bboxes = len(objs)
         # if not self.config['use_diff']:
         #     # Exclude the samples labeled as difficult
         #     non_diff_objs = [
@@ -222,6 +225,7 @@ class pascal_voc(imdb):
 
         boxes = np.zeros((num_objs, 4), dtype=np.uint16)
         gt_classes = np.zeros((num_objs), dtype=np.int32)
+        # shape = (num_objs, num_classes)
         overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
         # "Seg" area for pascal is just the box area
         seg_areas = np.zeros((num_objs), dtype=np.float32)
@@ -243,11 +247,12 @@ class pascal_voc(imdb):
             cls = self._class_to_ind[obj.find('name').text.lower().strip()]
             boxes[ix, :] = [x1, y1, x2, y2]
             gt_classes[ix] = cls
+            # a sparse matrix, each row is a one-hot-encoded vector, the idx of the non-zero element is its cls idx
             overlaps[ix, cls] = 1.0
             seg_areas[ix] = (x2 - x1 + 1) * (y2 - y1 + 1)
-
+        # get index (i, j) of non-zero elements row by row
         overlaps = scipy.sparse.csr_matrix(overlaps)
-
+        # for each img
         return {'boxes': boxes,
                 'gt_classes': gt_classes,
                 'gt_ishard': ishards,

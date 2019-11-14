@@ -24,8 +24,8 @@ def prepare_roidb(imdb):
          for i in range(imdb.num_images)]
          
   for i in range(len(imdb.image_index)):
-    roidb[i]['img_id'] = imdb.image_id_at(i)
-    roidb[i]['image'] = imdb.image_path_at(i)
+    roidb[i]['img_id'] = imdb.image_id_at(i)    # img idx
+    roidb[i]['image'] = imdb.image_path_at(i)   # abs path to an img
     if not (imdb.name.startswith('coco')):
       roidb[i]['width'] = sizes[i][0]
       roidb[i]['height'] = sizes[i][1]
@@ -88,6 +88,7 @@ def filter_roidb(roidb):
 def combined_roidb(imdb_names, training=True):
   """
   Combine multiple roidbs
+  roidb: bboxdb or imdb
   """
 
   def get_training_roidb(imdb):
@@ -103,13 +104,16 @@ def combined_roidb(imdb_names, training=True):
     #ratio_index = rank_roidb_ratio(imdb)
     print('done')
 
-    return imdb.roidb
+    return imdb.roidb # gt_roidb (gt_bboxdb)
   
   def get_roidb(imdb_name):
+    # Get an imdb (image database) by name.
     imdb = get_imdb(imdb_name)
     print('Loaded dataset `{:s}` for training'.format(imdb.name))
+    # PROPOSAL_METHOD = 'gt'
     imdb.set_proposal_method(cfg.TRAIN.PROPOSAL_METHOD)
     print('Set proposal method: {:s}'.format(cfg.TRAIN.PROPOSAL_METHOD))
+    # gt_roidb
     roidb = get_training_roidb(imdb)
     return roidb
 

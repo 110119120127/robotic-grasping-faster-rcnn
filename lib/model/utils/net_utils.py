@@ -47,17 +47,61 @@ def clip_gradient(model, clip_norm):
         if p.requires_grad and p.grad is not None:
             p.grad.mul_(norm)
 
+def vis_detections(im, class_name, dets, thresh=0.9, thresh_pose=0.5):
+    """Visual debugging of detections."""
+    length = 80
+    pose_list = []
+    
+    
+    for i in range(np.minimum(10, dets.shape[0])):
+        bbox = tuple(int(np.round(x)) for x in dets[i, :4]) 
+        xc = int(np.round((bbox[0] + bbox[2])/2.0))
+        yc = int(np.round((bbox[1] + bbox[3])/2.0))
+
+        score = dets[i, -3]
+        pose_ind = dets[i, -1]
+        pose_score = dets[i, -2]
+        if (score > thresh):
+            angle = pose_idn_to_angle(pose_ind)
+            angle_show = int(angle * 180.0/np.pi)
+            cv2.rectangle(im, bbox[0:2], bbox[2:4], (0, 255, 0), 2)
+            cv2.putText(im, '(%s: %.3f), (%d, %.3f)' % (class_name, score, angle_show, pose_score), (bbox[0], bbox[1] + 25), cv2.FONT_HERSHEY_PLAIN,1.0, (0, 0, 255), thickness=1)
+            
+            
+            #print('pose_ind: {0}, angle: {1}'.format(pose_ind,angle))
+            direction = (int(xc - length * np.cos(np.pi-angle)), int(yc - length * np.sin(np.pi-angle))) # calculate direction
+            
+            cv2.arrowedLine(im, (xc,yc), direction, (0,0,255), 2)
+            pose_list.append([class_name, score, xc, yc, angle_show, pose_score])
+    return im, pose_list
+    
+'''
 def vis_detections(im, class_name, dets, thresh=0.8):
     """Visual debugging of detections."""
+    length = 80
     for i in range(np.minimum(10, dets.shape[0])):
         bbox = tuple(int(np.round(x)) for x in dets[i, :4])
-        score = dets[i, -1]
+        xc = int((bbox[0] + bbox[2])/2.0)
+        yc = int((bbox[1] + bbox[3])/2.0)
+        
+        score = dets[i, -2]
+        pose_ind = dets[i, -1]
         if score > thresh:
+
             cv2.rectangle(im, bbox[0:2], bbox[2:4], (0, 204, 0), 2)
             cv2.putText(im, '%s: %.3f' % (class_name, score), (bbox[0], bbox[1] + 15), cv2.FONT_HERSHEY_PLAIN,
                         1.0, (0, 0, 255), thickness=1)
+            
+            angle = pose_idn_to_angle(pose_ind)
+            print('pose_ind: {0}, angle: {1}'.format(pose_ind,angle))
+            direction = (int(xc - length * np.cos(np.pi-angle)), int(yc - length * np.sin(np.pi-angle))); # calculate direction
+            
+            cv2.arrowedLine(im, (xc,yc), direction , (0,0,255), 2)
     return im
+'''
 
+def pose_idn_to_angle(pose_ind):
+    return ((2.0*pose_ind*10 - 10.0)/2.0) * np.pi/180.0
 
 def adjust_learning_rate(optimizer, decay=0.1):
     """Sets the learning rate to the initial LR decayed by 0.5 every 20 epochs"""

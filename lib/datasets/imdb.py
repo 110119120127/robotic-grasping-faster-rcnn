@@ -22,16 +22,24 @@ ROOT_DIR = osp.join(osp.dirname(__file__), '..', '..')
 class imdb(object):
   """Image database."""
 
-  def __init__(self, name, classes=None):
+  def __init__(self, name, classes=None, poses=None):
     self._name = name
     self._num_classes = 0
     if not classes:
       self._classes = []
     else:
       self._classes = classes
+    
+    self._num_poses = 0
+    if not poses:
+      self._poses = []
+    else:
+      self._poses = poses
+      
     self._image_index = []
     self._obj_proposer = 'gt'
     self._roidb = None
+    # in class pascal_voc(imdb), self._roidb_handler = self.gt_roidb, and def gt_roidb(self): returns gt_roidb
     self._roidb_handler = self.default_roidb
     # Use this dict for storing dataset specific config options
     self.config = {}
@@ -49,6 +57,14 @@ class imdb(object):
     return self._classes
 
   @property
+  def num_poses(self):
+    return len(self._poses) 
+    
+  @property
+  def poses(self):
+    return self._poses
+  
+  @property
   def image_index(self):
     return self._image_index
 
@@ -60,8 +76,8 @@ class imdb(object):
   def roidb_handler(self, val):
     self._roidb_handler = val
 
-  def set_proposal_method(self, method):
-    method = eval('self.' + method + '_roidb')
+  def set_proposal_method(self, method):    # method = 'gt'
+    method = eval('self.' + method + '_roidb') # Faster RCNN: method = 'gt'
     self.roidb_handler = method
 
   @property
@@ -71,9 +87,10 @@ class imdb(object):
     #   gt_overlaps
     #   gt_classes
     #   flipped
+    #   gt_poses
     if self._roidb is not None:
       return self._roidb
-    self._roidb = self.roidb_handler()
+    self._roidb = self.roidb_handler()  
     return self._roidb
 
   @property
@@ -118,15 +135,23 @@ class imdb(object):
       boxes = self.roidb[i]['boxes'].copy()
       oldx1 = boxes[:, 0].copy()
       oldx2 = boxes[:, 2].copy()
-      boxes[:, 0] = widths[i] - oldx2 - 1
-      boxes[:, 2] = widths[i] - oldx1 - 1
+      #boxes[:, 0] = widths[i] - oldx2 - 1
+      #boxes[:, 2] = widths[i] - oldx1 - 1
+      
+      for b in range(len(boxes)):
+        if boxes[b][2] < boxes[b][0]:
+            boxes[b][0] = 0
+            print(self._image_index)
+            
       assert (boxes[:, 2] >= boxes[:, 0]).all()
       entry = {'boxes': boxes,
                'gt_overlaps': self.roidb[i]['gt_overlaps'],
                'gt_classes': self.roidb[i]['gt_classes'],
-               'flipped': True}
+               'flipped': True,
+               'gt_poses': self.roidb[i]['gt_poses']}
       self.roidb.append(entry)
     self._image_index = self._image_index * 2
+    
 
   # def evaluate_recall(self, candidate_boxes=None, thresholds=None,
   #                     area='all', limit=None):
@@ -230,6 +255,7 @@ class imdb(object):
       if gt_roidb is not None and gt_roidb[i]['boxes'].size > 0:
         gt_boxes = gt_roidb[i]['boxes']
         gt_classes = gt_roidb[i]['gt_classes']
+        gt_poses = gt_roidb[i]['gt_poses']
         gt_overlaps = bbox_overlaps(boxes.astype(np.float),
                                     gt_boxes.astype(np.float))
         argmaxes = gt_overlaps.argmax(axis=1)
@@ -244,7 +270,7 @@ class imdb(object):
         'gt_overlaps': overlaps,
         'flipped': False,
         'seg_areas': np.zeros((num_boxes,), dtype=np.float32),
-      })
+        'gt_poses': np.zeros((num_boxes,), dtype=np.int32)})
     return roidb
 
   @staticmethod
@@ -258,6 +284,8 @@ class imdb(object):
                                                  b[i]['gt_overlaps']])
       a[i]['seg_areas'] = np.hstack((a[i]['seg_areas'],
                                      b[i]['seg_areas']))
+      a[i]['gt_classes'] = np.hstack((a[i]['gt_poses'], \
+                                      b[i]['gt_poses']))                                    
     return a
 
   def competition_mode(self, on):

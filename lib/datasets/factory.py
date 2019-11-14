@@ -11,12 +11,30 @@ from __future__ import division
 from __future__ import print_function
 
 __sets = {}
+
+from datasets.inria import inria
+from datasets.grasp import grasp
+
 from datasets.pascal_voc import pascal_voc
 from datasets.coco import coco
 from datasets.imagenet import imagenet
 from datasets.vg import vg
 
 import numpy as np
+
+# Set up grasp_<split>
+grasp_devkit_path = '/home/edward/Documents/faster-rcnn.pytorch/data/Graspdevkit'
+for split in ['train', 'test']:
+    name = '{}_{}'.format('grasp', split)
+    __sets[name] = (lambda split=split: grasp(split, grasp_devkit_path))
+
+
+
+# Set up inria_<split>
+inria_devkit_path = '/home/edward/Documents/faster-rcnn.pytorch/data/INRIA_Person_devkit'
+for split in ['train', 'test']:
+    name = '{}_{}'.format('inria', split)
+    __sets[name] = (lambda split=split: inria(split, inria_devkit_path))
 
 # Set up voc_<year>_<split>
 for year in ['2007', '2012']:
